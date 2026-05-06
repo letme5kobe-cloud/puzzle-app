@@ -1,10 +1,22 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
+import princess1Image from "./princess1.png";
+import princess2Image from "./princess2.png";
+import robotImage from "./robot.png";
+import dogcatImage from "./dogcat.png";
+
 const correctTiles = [0, 1, 2, 3, 4, 5, 6, 7, ""]; 
 const tileSize = 96;
 const gap = 8;
 const step = tileSize + gap;
+
+const puzzleImages = [
+  { id: "princess1", label: "ピンクのお姫様", image: princess1Image },
+  { id: "princess2", label: "ブルーのお姫様", image: princess2Image },
+  { id: "robot", label: "ロボット", image: robotImage },
+  { id: "dogcat", label: "ドッグ＆キャット", image: dogcatImage },
+];
 
 function getMovableIndexes(emptyIndex) {
   const row = Math.floor(emptyIndex / 3);
@@ -117,6 +129,8 @@ export default function Home() {
   const [effects, setEffects] = useState([]);
   const [isReady, setIsReady] = useState(false);
 
+  const [selectedImage, setSelectedImage] = useState(puzzleImages[0]);
+
   const hasPlayedSuccessSound = useRef(false);
   const hasInitializedPuzzle = useRef(false);
 
@@ -190,6 +204,13 @@ export default function Home() {
     hasPlayedSuccessSound.current = false;
   }
 
+  function changePuzzleImage(image) {
+    setSelectedImage(image);
+    setTiles(createSolvableTiles());
+    setEffects([]);
+    hasPlayedSuccessSound.current = false;
+  }
+
   return (
     <main
       className={`relative flex flex-col items-center justify-center h-screen gap-6 overflow-hidden transition-colors duration-500 ${
@@ -254,7 +275,7 @@ export default function Home() {
                 transform: `translate(${(index % 3) * step}px, ${
                   Math.floor(index / 3) * step
                 }px)`,
-                backgroundImage: 'url("/puzzle.png")',
+                backgroundImage: `url("${selectedImage.image.src}")`,
                 backgroundSize: "300% 300%",
                 backgroundPosition: `${(tile % 3) * 50}% ${
                   Math.floor(tile / 3) * 50
@@ -272,6 +293,23 @@ export default function Home() {
       >
         もういっかい
       </button>
+
+      <div className="flex flex-wrap items-center justify-center gap-2 px-4">
+        {puzzleImages.map((image) => (
+          <button
+            key={image.id}
+            type="button"
+            onClick={() => changePuzzleImage(image)}
+            className={`rounded-full px-4 py-2 text-sm font-bold shadow ${
+              selectedImage.id === image.id
+                ? "bg-pink-500 text-white"
+                : "bg-white text-blue-800"
+            }`}
+          >
+            {image.label}
+          </button>
+        ))}
+      </div>
     </main>
   );
 }
